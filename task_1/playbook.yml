@@ -1,0 +1,59 @@
+---
+- name: Установить nginx и раздать файлы
+  hosts: web
+  become: yes
+
+  tasks:
+    - name: Установить nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Создать папку для файлов
+      file:
+        path: /var/www/files
+        state: directory
+        mode: '0755'
+
+    - name: Создать файл 1
+      copy:
+        dest: /var/www/files/file1.txt
+        content: "Приветик! Это файл 1."
+        mode: '0644'
+
+    - name: Создать файл 2
+      copy:
+        dest: /var/www/files/file2.txt
+        content: "Привеик! Это файл 2."
+        mode: '0644'
+
+    - name: Настроить nginx для /files
+      copy:
+        dest: /etc/nginx/sites-available/files
+        content: |
+          server {
+              listen 80;
+              server_name _;
+              location /files {
+                  autoindex on;
+                  alias /var/www/files/;
+              }
+          }
+
+    - name: Активировать сайт /files
+      file:
+        src: /etc/nginx/sites-available/files
+        dest: /etc/nginx/sites-enabled/files
+        state: link
+        force: yes
+
+    - name: Убрать дефолтный сайт
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Перезапустить nginx
+      service:
+        name: nginx
+        state: restarted

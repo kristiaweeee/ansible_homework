@@ -1,0 +1,14 @@
+---
+- name: Настроить nginx с портом
+  hosts: web
+  become: yes
+
+  tasks:
+    - name: Настроить порт nginx через наш модуль
+      nginx_port:
+        port: 8080
+
+    - name: Перезапустить nginx
+      service:
+        name: nginx
+        state: restarted
