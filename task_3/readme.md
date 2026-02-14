@@ -1,4 +1,4 @@
-#Создать 3 виртуалки rrobin, web1, web2
+# Создать 3 виртуалки rrobin, web1, web2
 На серверах rrobin, web1, web2 установить nginx.
 На серверах web1, web2 Nginx должен работать по порту 8080 и отдавать кастомную страницу, зайдя на которую можно понять на каком сервере вы находитесь.
 На сервере rrobin Nginx должен обеспечить балансировку нагрузки серверов web1 и web2 в режиме round-robin. Вес каждого сервера одинаковый.
@@ -8,8 +8,11 @@
 https://docs.ansible.com/projects/ansible/latest/dev_guide/index.html
 Полезные команды для ansible:
 • ansible -C (проверка конфигурации без применения)
+
 • ansible-playbook -D показывает diff
+
 • ansible-playbook —list-hosts хосты на которых будет выполнятся команды
+
 • ansible-galay role init nginx шаблонизация 
 
 Примеры конфигураций для ansible:
