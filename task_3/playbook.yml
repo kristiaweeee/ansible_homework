@@ -1,0 +1,73 @@
+---
+- name: Установить nginx на всех машинах
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Ставим nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+
+- name: Настроить WEB сервера
+  hosts: web
+  become: yes
+
+  tasks:
+    - name: Создать страницу с именем сервера
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <html>
+          <head>
+          <meta charset="utf-8">
+          </head>
+          <body>
+          Я сервер {{ inventory_hostname }}
+          </body>
+          </html>
+
+    - name: Сделать nginx на порту 8080
+      copy:
+        dest: /etc/nginx/sites-enabled/default
+        content: |
+          server {
+              listen 8080;
+              root /var/www/html;
+              index index.html;
+          }
+
+    - name: Перезапустить nginx на WEB
+      service:
+        name: nginx
+        state: restarted
+
+
+- name: Настроить балансировщик
+  hosts: rrobin
+  become: yes
+
+  tasks:
+    - name: Конфиг round robin
+      copy:
+        dest: /etc/nginx/sites-enabled/default
+        content: |
+          upstream backend {
+              server 192.168.193.193:8080;
+              server 192.168.193.194:8080;
+          }
+
+          server {
+              listen 80;
+
+              location / {
+                  proxy_pass http://backend;
+              }
+          }
+
+    - name: Перезапустить nginx на балансировщике
+      service:
+        name: nginx
+        state: restarted
